@@ -1,4 +1,5 @@
 var express = require('express');
+var expressValidator = require('express-validator');
 var logger = require('morgan');
 var mongoose = require('mongoose');
 var path = require('path');
@@ -7,8 +8,9 @@ var cookieParser = require('cookie-parser');
 var methodOverride = require('method-override');
 
 var router = require('./app/router');
-var config = require('./app/config/config');
+var config = require('./config/config');
 var error = require('./app/helpers/error');
+var customValidator = require('./app/helpers/customValidators');
 
 var app = express();
 // This fixes the CORS issue
@@ -43,6 +45,7 @@ app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 app.use(methodOverride());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(expressValidator(customValidator));
 
 // Routes
 for (var r in config.routes) {
