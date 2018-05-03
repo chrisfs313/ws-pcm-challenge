@@ -1,0 +1,28 @@
+{
+  "name": "ws-pcm-challenge",
+  "version": "0.0.1",
+  "description": "Challenge from PCM in Node.js for web services.",
+  "main": "server.js",
+  "repository": "",
+  "license": "MIT",
+  "author": "Cristian F. Shute <chris_fs313@hotmail.com>",
+  "dependencies": {
+    "async": "~0.2.8",
+    "aws-sdk": "^2.176.0",
+    "body-parser": "^1.18.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.13.4",
+    "method-override": "^2.3.10",
+    "mongoose": "^4.3.6",
+    "morgan": "^1.9.0",
+    "node-uuid": "^1.4.8",
+    "path": "^0.12.7",
+    "util": "^0.10.3"
+  },
+  "keywords": [
+    "heroku"
+  ],
+  "engines": {
+    "node": "6.11.2"
+  }
+}
