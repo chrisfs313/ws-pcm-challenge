@@ -54,7 +54,7 @@ var Business = (function () {
     function getUsersById(id, f) {
         var query = [
             {
-                $match: { "_id": mongoose.Types.ObjectId(id, f) }
+                $match: { "_id": mongoose.Types.ObjectId(id) }
             }
             ,{
                 $lookup: {

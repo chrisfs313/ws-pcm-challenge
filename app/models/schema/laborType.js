@@ -4,7 +4,8 @@ var Schema = mongoose.Schema;
 var ObjectId = Schema.ObjectId;
 
 var laborTypeSchema = new Schema({
-    name: String
+    name: String,
+    identifier: Number
 });
 
 
