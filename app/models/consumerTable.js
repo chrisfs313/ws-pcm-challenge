@@ -35,6 +35,53 @@ var ConsumerTable = (function () {
         model.aggregate(query, f);
     }
     
+    function getOrdersByTableId(id, f) {
+        var query = [];
+            
+        query.push({ $match: { "_id": mongoose.Types.ObjectId(id) } });
+            
+        query.push({
+                $lookup: {
+                    from: "collection-menuDish",
+                    localField: "consumerMenus",
+                    foreignField: "_id",
+                    as: "consumerMenus"
+                }
+            });
+            
+        query.push({
+                $lookup: {
+                    from: "collection-user",
+                    localField: "idWaiterUser",
+                    foreignField: "_id",
+                    as: "waiter"
+                }
+            });
+            
+        query.push({
+        	$unwind: "$waiter" 
+        });
+            
+        query.push({
+            $project: {
+                _id: 1,
+                name: 1,
+                waiter: {
+                	_id: 1,
+                	fullName: { $concat: [ "$waiter.name", " ", "$waiter.lastName" ] }
+                },
+                consumerMenus: {
+                    _id: 1,
+               		name: 1,
+               		price: 1,
+               		imageUrl: 1
+                }
+            }
+        });
+        
+        model.aggregate(query, f);
+    }
+    
     function save(body, f) {
         var consumerTable = new model(body);
         consumerTable.save(f);
@@ -48,6 +95,7 @@ var ConsumerTable = (function () {
         find: find,
         findById: findById,
         findByBusinessId: findByBusinessId,
+        getOrdersByTableId: getOrdersByTableId,
         save: save,
         update: update
     };

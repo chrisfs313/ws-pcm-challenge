@@ -105,10 +105,23 @@ var ConsumerTable = (function () {
             });
     }
     
+    function getOrdersByTable(req, res, next) {
+        var id = req.params.id;
+        
+        ConsumerTableModel.getOrdersByTableId(id, function (e, d) {
+                if (e) {
+                    next(e);
+                } else {
+                    res.json(d);
+                }
+            });
+    }
+    
     return {
         list: list,
         listActivesByBusiness: listActivesByBusiness,
-        setTableOccupied: setTableOccupied
+        setTableOccupied: setTableOccupied,
+        getOrdersByTable: getOrdersByTable
     };
 })(ConsumerTable || {});
 module.exports = ConsumerTable;
