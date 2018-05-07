@@ -65,7 +65,7 @@ var ConsumerTable = (function () {
                 consumerCount: 0, 
                 size: 0
             })
-            .sort({ field : "name"})
+            .sort("name", 1)
             .exec(f);
         
         /*var query = [];
