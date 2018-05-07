@@ -36,7 +36,38 @@ var ConsumerTable = (function () {
     }
     
     function getOrdersByTableId(id, f) {
-        var query = [];
+        model
+            .findById(id)
+            .populate({
+                path: 'consumerMenus',
+                select: {
+                    description: 0,
+                    idMenuCategory: 0,
+                    __v: 0,
+                    creationDate: 0,
+                    isAvailable: 0
+                    
+                }
+            })
+            .populate({
+                path: 'idWaiterUser',
+                select: {
+                    dni: 0,
+                    idLaborType: 0,
+                    creationDate: 0,
+                    isAvailable: 0
+                }
+            })
+            .select({ 
+                idBusiness: 0, 
+                __v: 0, 
+                isOccupied: 0, 
+                consumerCount: 0, 
+                size: 0
+            })
+            .exec(f);
+        
+        /*var query = [];
             
         query.push({ $match: { "_id": mongoose.Types.ObjectId(id) } });
             
@@ -79,7 +110,7 @@ var ConsumerTable = (function () {
             }
         });
         
-        model.aggregate(query, f);
+        model.aggregate(query, f);*/
     }
     
     function save(body, f) {
