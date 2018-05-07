@@ -19,6 +19,7 @@ var ConsumerTable = (function () {
         var query = [];
             
         query.push({ $match: { "idBusiness": mongoose.Types.ObjectId(id) } });
+        query.push({ $sort : { name : 1 } });
             
         // Now finally filters which properties to show
         query.push({
