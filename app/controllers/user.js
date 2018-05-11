@@ -12,6 +12,7 @@ var User = (function () {
             var response = {
                 success: 0,
                 user: {
+                    _id: "",
                     name: "",
                     lastName: "",
                     dni: "",
@@ -26,6 +27,7 @@ var User = (function () {
                     var password = SHA256(req.body.password).toString();
                     
                     if (d.password === password) {
+                        response.user._id = d._id;
                         response.user.name = d.name;
                         response.user.lastName = d.lastName;
                         response.user.dni = d.dni;
