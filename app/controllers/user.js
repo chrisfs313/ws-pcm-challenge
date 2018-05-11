@@ -10,7 +10,7 @@ var User = (function () {
         
         UserModel.findByDNI(dni, function (e, d) {
             var response = {
-                success: false,
+                success: 0,
                 user: {
                     name: "",
                     lastName: "",
@@ -22,18 +22,16 @@ var User = (function () {
             if (e) {
                 next(e);
             } else {
-                console.log("d", d);
-                
                 if (d) {
                     var password = SHA256(req.body.password).toString();
-                    console.log("password", password);
+                    
                     if (d.password === password) {
                         response.user.name = d.name;
                         response.user.lastName = d.lastName;
                         response.user.dni = d.dni;
                         response.user.idLaborType = d.idLaborType;
                         
-                        response.success = true;
+                        response.success = 1;
                     }
                 }
                 
