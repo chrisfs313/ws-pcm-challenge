@@ -8,6 +8,7 @@ var userSchema = new Schema({
     name: String,
     lastName: String,
     dni: String,
+    password: String,
     isAvailable: { type: Boolean, default: true },
     idLaborType: {type: ObjectId, ref: 'LaborType', validate: valid.isObjectId},
     creationDate: { type: Date, default: Date.now }

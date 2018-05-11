@@ -3,6 +3,7 @@ var routes = {
     menuCategory: '/menuCategory',
     business: '/business',
     consumerTable: '/consumerTable',
+    user: '/user'
 };
 
 module.exports = routes;

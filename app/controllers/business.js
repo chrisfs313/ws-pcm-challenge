@@ -6,23 +6,25 @@ var UserModel = require('../models/user');
 var Business = (function () {
     
     function list(req, res, next) {
-        BusinessModel.find(function (e, d) {
-            if (e) {
-                next(e);
-            } else {
-                res.json(d);
-            }
-        });
-    }
-    
-    function search(req, res, next) {
-        BusinessModel.findBy(req.body, function (e, d) {
+        var id = req.params.id;
+        
+        if (id) {
+            BusinessModel.findById(id, function (e, d) {
                 if (e) {
                     next(e);
                 } else {
                     res.json(d);
                 }
             });
+        } else {
+            BusinessModel.find(function (e, d) {
+                if (e) {
+                    next(e);
+                } else {
+                    res.json(d);
+                }
+            });
+        }
     }
     
     function usersById(req, res, next) {
@@ -39,8 +41,7 @@ var Business = (function () {
     
     return {
         list: list,
-        usersById: usersById,
-        search: search
+        usersById: usersById
     };
 })(Business || {});
 module.exports = Business;

@@ -23,6 +23,12 @@ var User = (function () {
             .find(filters)
             .exec(f);
     }
+    
+    function findByDNI(dni, f) {
+        model
+            .findOne({dni: dni})
+            .exec(f);
+    }
 
     function findById(id, f) {
         model.findById(id).exec(f);
@@ -31,7 +37,8 @@ var User = (function () {
     return {
         find: find,
         findBy: findBy,
-        findById: findById
+        findById: findById,
+        findByDNI: findByDNI
     };
 
 })(User || {});
