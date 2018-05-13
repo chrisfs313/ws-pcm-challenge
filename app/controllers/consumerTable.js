@@ -1,6 +1,8 @@
 var mongoose = require('mongoose');
 
 var ConsumerTableModel = require('../models/consumerTable');
+var ConsumerTableOrderModel = require('../models/consumerTableOrder');
+var ConsumerTableOrderSchema = require('../models/schema/consumerTableOrder');
 var ValidHelper = require('../helpers/valid');
 var constants = require('../helpers/constants');
 var messages = require('../helpers/messages');
@@ -59,13 +61,19 @@ var ConsumerTable = (function () {
                     // validate if the menus are valid
                     if (occupied && hasConsumerMenus) {
                         for (var i = 0; i < consumerMenus.length; i++) {
-                            if(!ValidHelper.isObjectId(consumerMenus[i])) {
+                            var cm = consumerMenus[i];
+                            var hasIdConsumerOrder = cm.idConsumerOrder.length > 0;
+                            
+                            if((hasIdConsumerOrder && !ValidHelper.isObjectId(cm.idConsumerOrder)) ||
+                                !ValidHelper.isObjectId(cm.idConsumerMenu) ||
+                                !ValidHelper.isObjectId(cm.idOrderStatusType)) {
+                                    
                                 objectIdWrong = true;
                                 break;
                             }
                         }
                     } 
-                
+                      
                     if (objectIdWrong) {
                         // If is wrong a menu throw an error
                         res.json({
@@ -83,23 +91,145 @@ var ConsumerTable = (function () {
                             }
                             
                             if (hasConsumerMenus) {
-                                consumerTable.set('consumerMenus', consumerMenus);
+                                var countModel = 0;
+                                
+                                for (var i = 0; i < consumerMenus.length; i++) {
+                                    var idConsumerOrder = consumerMenus[i].idConsumerOrder;
+                                    var idConsumerMenu = consumerMenus[i].idConsumerMenu;
+                                    var idOrderStatusType = consumerMenus[i].idOrderStatusType;
+                                    
+                                    var consumerTableOrderBody = {
+                                        idMenuDish: idConsumerMenu,
+                                        idOrderStatusType: idOrderStatusType,
+                                    };
+                                    
+                                    switch (idOrderStatusType) {
+                                        case constants.orderStatusType.borrado:
+                                            ConsumerTableOrderModel.removeById(idConsumerOrder,
+                                                function (ctomError, ctomData) {
+                                                    if (ctomError) {
+                                                        next(ctomError);
+                                                    } 
+                                                    else {
+                                                        countModel++;
+                                                        // Process ConsumerTableModel
+                                                        // Now update the table: ConsumerTableModel, and response.
+                                                        processConsumerTableModel(
+                                                            consumerMenus, 
+                                                            consumerTable, 
+                                                            {
+                                                                _id: idConsumerOrder,
+                                                                isNew: false,
+                                                                isErased: true
+                                                            }, 
+                                                            countModel, 
+                                                            res);
+                                                    }
+                                                });
+                                            break;
+                                        case constants.orderStatusType.recienPedido:
+                                            consumerTableOrderBody.idOrderStatusType = constants.orderStatusType.pendiente;
+                                            
+                                            // Save to: ConsumerTableOrder
+                                            ConsumerTableOrderModel.save(consumerTableOrderBody, 
+                                                function (ctomError, ctomData) {
+                                                    if (ctomError) {
+                                                        next(ctomError);
+                                                    } 
+                                                    else {
+                                                        countModel++;
+                                                        
+                                                        // Process ConsumerTableModel
+                                                        // Now update the table: ConsumerTableModel, and response.
+                                                        processConsumerTableModel(
+                                                            consumerMenus, 
+                                                            consumerTable, 
+                                                            {
+                                                                _id: ctomData._id,
+                                                                isNew: true,
+                                                                isErased: false
+                                                            }, 
+                                                            countModel, 
+                                                            res);
+                                                    }
+                                                });
+                                            break;
+                                        default:
+                                            // Update to: ConsumerTableOrder
+                                            ConsumerTableOrderModel.update(idConsumerOrder, consumerTableOrderBody, 
+                                                function (ctomError, ctomData) {
+                                                    if (ctomError) {
+                                                        next(ctomError);
+                                                    }
+                                                    else {
+                                                        countModel++;
+                                                        
+                                                        // Process ConsumerTableModel
+                                                        // Now update the table: ConsumerTableModel, and response.
+                                                        processConsumerTableModel(
+                                                            consumerMenus, 
+                                                            consumerTable, 
+                                                            undefined, 
+                                                            countModel, 
+                                                            res);
+                                                    }
+                                                });
+                                            break;
+                                    }
+                                    
+                                    function processConsumerTableModel(consumerMenus, consumerTable, 
+                                        ctomData, countModel, res) {
+                                        
+                                        // Add the recently: ConsumerTableOrderModel
+                                        if (ctomData) {
+                                            if (ctomData.isNew) {
+                                                // Add new one
+                                                consumerTable.consumerMenus.push(ctomData._id);
+                                            }
+                                            else if (ctomData.isErased) {
+                                                // Remove it
+                                                for (var k = 0; k < consumerTable.consumerMenus.length; k++) {
+                                                    if (consumerTable.consumerMenus[k] === ctomData._id) {
+                                                        consumerTable.consumerMenus.splice(k, 1);
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        
+                                        // Now update the table: ConsumerTableModel, and response.
+                                        if (countModel >= consumerMenus.length) {
+                                            ConsumerTableModel.update(id, consumerTable, function (ctmError, ctmData) {
+                                                if (ctmError) {
+                                                    next(ctmError);
+                                                } 
+                                                else {
+                                                    ctmData.isOccupied = ctmData.isOccupied ? 1 : 0;
+                                                        
+                                                    // Now return the data
+                                                    res.json(ctmData);
+                                                }
+                                            });
+                                        }
+                                    }
+                                }
                             }
                         }
                         else {
                             consumerTable.set('idWaiterUser', null);
                             consumerTable.set('consumerMenus', []);
+                            
+                            // Clear consumer Menus
+                            ConsumerTableModel.update(id, consumerTable, function (updateError, updateData) {
+                                if (updateError) {
+                                    next(updateError);
+                                } else {
+                                    updateData.isOccupied = updateData.isOccupied ? 1 : 0;
+                                        
+                                    res.json(updateData);
+                                }
+                            });
                         }
-                        
-                        ConsumerTableModel.update(id, consumerTable, function (updateError, updateData) {
-                            if (updateError) {
-                                next(updateError);
-                            } else {
-                                updateData.isOccupied = updateData.isOccupied ? 1 : 0;
-                                    
-                                res.json(updateData);
-                            }
-                        });
                     }
                 }
             });

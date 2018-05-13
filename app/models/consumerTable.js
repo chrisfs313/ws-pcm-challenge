@@ -41,19 +41,22 @@ var ConsumerTable = (function () {
             .findById(id)
             .populate({
                 path: 'consumerMenus',
+                populate: {
+                    path: 'idMenuDish',
+                    select: {
+                        name: 1,
+                        price: 1,
+                        imageUrl: 1
+                    }
+                },
                 select: {
-                    description: 0,
-                    idMenuCategory: 0,
-                    __v: 0,
-                    creationDate: 0,
-                    isAvailable: 0
-                    
+                    __v: 0
                 }
             })
             .populate({
                 path: 'idWaiterUser',
                 select: {
-                    dni: 0,
+                    password: 0,
                     idLaborType: 0,
                     creationDate: 0,
                     isAvailable: 0

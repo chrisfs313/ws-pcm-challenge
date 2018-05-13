@@ -8,7 +8,7 @@ var laborTypeSchema = new Schema({
     identifier: Number
 });
 
-
-var LaborType = mongoose.model('LaborType', laborTypeSchema, 'collection-laborType');
+var LaborType = mongoose.model('LaborType', laborTypeSchema, 
+    'collection-laborType');
 
 module.exports = LaborType;

@@ -8,7 +8,7 @@ var consumerTableSchema = new Schema({
     name: String,
     size: { type: Number, default: 4 },
     consumerCount: { type: Number, default: 0 },
-    consumerMenus: [{type: ObjectId, ref: 'MenuDish', validate: valid.isObjectId}],
+    consumerMenus: [{type: ObjectId, ref: 'ConsumerTableOrder', validate: valid.isObjectId, default: []}],
     isOccupied: { type: Boolean, default: false },
     idBusiness: {type: ObjectId, ref: 'Business', validate: valid.isObjectId},
     idWaiterUser: {type: ObjectId, ref: 'User', validate: valid.isObjectId, default: null}
